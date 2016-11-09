@@ -1,0 +1,38 @@
+before_install:
+  - sudo apt-get -qq update
+  - sudo apt-get install -qq -y libblas-dev opencl-headers
+
+addons:
+  apt:
+    packages:
+      - gcc-5
+      - g++-5
+    sources: &sources
+      - ubuntu-toolchain-r-test
+
+os: linux
+language: c
+script:
+  - sudo unlink /usr/bin/gcc && sudo ln -s /usr/bin/gcc-5 /usr/bin/gcc
+  - sudo unlink /usr/bin/g++ && sudo ln -s /usr/bin/g++-5 /usr/bin/g++
+  - export OMP_NUM_THREADS=4
+  - cmake ./CMakeLists.txt
+  - cd mmid_OpenMP/ && make
+#  - cd mmid_CBLAS/ && make
+#  - cd mmid_OpenCL/ && make
+
+before_deploy:
+  - export BIN_OPEN_MP=$(ls mmid_OpenMP/bin/mmid_OpenMP)
+#  - export BIN_CBLAS=$(ls mmid_CBLAS/bin/mmid_CBLAS)
+#  - export BIN_OPEN_CL=$(ls mmid_OpenCL/bin/mmid_OpenCL)
+
+deploy:
+  provider: releases
+  api_key: "${GH_TOKEN}"
+  file:
+    - "${BIN_OPEN_MP}"
+#    - "${BIN_CBLAS}"
+#    - "${BIN_OPEN_CL}"
+  skip_cleanup: true
+  on:
+    tags: true
