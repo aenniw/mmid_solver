@@ -15,7 +15,7 @@ int main(void) {
     initializeData();
     const cl_float period = 100, dt = 0.01;
     const int steps = (const int) roundf(period / dt);
-    const char *c_kernel = prepareKernel(N, dt, steps, mmid_kernel);
+    prepareKernel(N, dt, steps);
     std::vector<cl::Context> contexts = createContexts(CL_DEVICE_TYPE_ALL);
     std::cout << "Contexts generated:" << contexts.size() << std::endl << std::endl;
     // get Context devices info
@@ -37,7 +37,7 @@ int main(void) {
                             unitSize, (void *) u);
         try {
             // Compile Programs
-            cl::Program program = createProgram(*context, c_kernel, strlen(c_kernel), devices);
+            cl::Program program = createProgram(*context, mmid_kernel, mmid_kernel_len, devices);
             cl::Kernel kernel = createKernel(program);
             kernel.setArg(0, k_buffer);
             kernel.setArg(1, m_buffer);
@@ -79,7 +79,6 @@ int main(void) {
         }
     }
     releaseData();
-    free((void *) c_kernel);
     return 0;
 }
 

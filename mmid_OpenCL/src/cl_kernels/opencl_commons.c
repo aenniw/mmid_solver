@@ -3,7 +3,7 @@
 
 #include "opencl_commons.h"
 
-const char *CL_OPTIONS = "-Werror";
+char CL_OPTIONS[255] = {'\0'};
 
 cl::Program
 createProgram(cl::Context &context, const char *program_data, const size_t len, std::vector<cl::Device> &devices) {
