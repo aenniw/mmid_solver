@@ -1,32 +1,10 @@
 #include <cstring>
 #include "commons.h"
 
-char *addDefine(const char *kernel, const char *name, const int value) {
-    int intLen = 1, count = value;
-    while (count /= 10)
-        intLen++;
-    char *x = (char *) calloc(12 + intLen + strlen(kernel) + strlen(name), sizeof(char));
-    sprintf(x, "#define %s %d\n%s", name, value, kernel);
-    return x;
-}
+extern char CL_OPTIONS[];
 
-char *addDefine(const char *kernel, const char *name, const float value) {
-    int intLen = 27, count = (int) value;
-    while (count /= 10)
-        intLen++;
-    char *x = (char *) calloc(12 + intLen + strlen(kernel) + strlen(name), sizeof(char));
-    sprintf(x, "#define %s %+14.10lf\n%s", name, value, kernel);
-    return x;
-}
-
-char *prepareKernel(int N, const cl_float dt, const int steps, const char *kern) {
-    char *tmp = addDefine(kern, "N", N), *kernel = addDefine(tmp, "dt", dt);
-    free(tmp);
-    tmp = addDefine(kernel, "steps", steps);
-    free(kernel);
-    kernel = addDefine(tmp, "INTERACT", INTERACT);
-    free(tmp);
-    return kernel;
+void prepareKernel(int N, const cl_float dt, const int steps) {
+    sprintf(CL_OPTIONS, "-Werror -DN=%d -Ddt=%.10lf -Dsteps=%d -DINTERACT=%d", N, dt, steps, INTERACT);
 }
 
 int confirm() {

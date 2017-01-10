@@ -38,3 +38,4 @@ kernels.c
 cmake_install.cmake
 Makefile
 CMakeCache.txt
+/cmake-build-debug/

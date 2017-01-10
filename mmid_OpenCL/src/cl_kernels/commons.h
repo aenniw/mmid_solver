@@ -9,11 +9,7 @@
 extern int N;
 extern cl_float *m, *k, *v, *u;
 
-char *addDefine(const char *kernel, const char *name, const int value);
-
-char *addDefine(const char *kernel, const char *name, const float value);
-
-char *prepareKernel(int N, const cl_float dt, const int steps, const char *kern);
+void prepareKernel(int N, const cl_float dt, const int steps);
 
 int confirm();
 
