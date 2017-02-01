@@ -1,12 +1,11 @@
 #ifndef ROOTPROJECT_COMMONS_H
 #define ROOTPROJECT_COMMONS_H
-#define INTERACT 1
 //#define LOGGING
 #include <iostream>
 #include <CL/cl_platform.h>
 #include <cmath>
 
-extern int N;
+extern int N, INTERACT;
 extern cl_float *m, *k, *v, *u;
 
 void prepareKernel(int N, const cl_float dt, const int steps);

@@ -47,6 +47,8 @@ cl_float getPeriod(const cl_float *m, cl_float *k, int n) {
 void initializeData() {
     fprintf(stdout, "Enter samples value: ");
     scanf("%d", &N);
+    fprintf(stdout, "Enter interaction value: ");
+    scanf("%d", &INTERACT);
     cl_float rand_offset = 1.2;
     m = (cl_float *) malloc(sizeof(cl_float) * N);
     k = (cl_float *) malloc(sizeof(cl_float) * N * N);

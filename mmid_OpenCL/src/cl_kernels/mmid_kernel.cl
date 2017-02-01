@@ -8,11 +8,13 @@ kernel void test_kernel(global const float *k, global const float *m,
                         global float *v_p, global float *u_p,
                         global float *v, global float *u) {
     private const int i = get_local_id(0);
+    private const long INTERACTION_END = min(N - 1, i + INTERACT);
+
     for(int step = 0; step < steps; step++) {
         private float sumU = 0, sumV = 0, sumV_part = 0.5 * dt * v_p[i];
         #pragma unroll
-        for (long j = i == 0 ? 0 : i - INTERACT; j <= i + INTERACT && j < N; j++) {
-            float tmp_u = k[i * N + j] * u_p[j];
+        for (long j = max(0, i - INTERACT); j <= INTERACTION_END; j++) {
+            private float tmp_u = k[i * N + j] * u_p[j];
             sumV -= tmp_u + k[i * N + j] * sumV_part;
             sumU -= tmp_u;
         }

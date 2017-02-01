@@ -3,12 +3,16 @@
 #include <math.h>
 #include <omp.h>
 #include <time.h>
-#include "gnuplot.h"
 
 //#define ENERGY_CHECK
 //#define PLOTS
 long INTERACT = 0;
 double *m, **k, E[2] = {0, 0};
+
+const long min(long i, long i1);
+
+const long max(long a, long b);
+
 double *v[2], *u[2];
 
 double get_k(long i, long j, long n) {
@@ -38,8 +42,9 @@ void mmid_sub_task(const double dt, const double endT, const long n) {
 #pragma omp parallel for
         for (long i = startOffset; i < endOffset; i++) {
             double sumU = 0, sumV = 0, sumE = 0;
+            const long INTERACT_END = min(n - 1, i + INTERACT);
             // INTERACT stands for interaction between entities
-            for (long j = i == 0 ? 0 : i - INTERACT; j <= i + INTERACT && j < n; j++) {
+            for (long j = max(0, i - INTERACT); j <= INTERACT_END; j++) {
                 sumV -= k[i][j] * (u[step][j] + 0.5 * dt * v[step][i]);
                 sumU -= k[i][j] * u[step][j];
 #ifdef ENERGY_CHECK
@@ -74,6 +79,14 @@ void mmid_sub_task(const double dt, const double endT, const long n) {
 #endif
 }
 
+const long max(long a, long b) {
+    return a < b ? b : a;
+}
+
+const long min(long a, long b) {
+    return a < b ? a : b;
+}
+
 double getPeriod(const double *m, double **k, long n) {
 #define PI 3.14159265358979323846
     if (m == NULL || n <= 0)
@@ -102,8 +115,7 @@ int main(int argc, char **argv) {
     }
     double m_base = 2, k_base = 0.3, v_base = 0.2, u_base = 0.1;
     //comment out for stable samples
-    srand((unsigned) time(NULL));
-    fprintf(stdout, "--- Samples -----------------\n");
+    //srand((unsigned) time(NULL));
     for (long i = 0; i < N; i++) {
         m[i] = (rand() / (RAND_MAX / (m_base * rand_offset - m_base))) + m_base;
         k[i] = malloc(sizeof(double) * N);
@@ -117,23 +129,21 @@ int main(int argc, char **argv) {
         }
         v[0][i] = (rand() / (RAND_MAX / (v_base * rand_offset - v_base))) + v_base;
         u[0][i] = (rand() / (RAND_MAX / (u_base * rand_offset - u_base))) + u_base;
-        fprintf(stdout, "%ld. m=%+14.10lf v=%+14.10lf u=%+14.10lf\n", i + 1, m[i], v[0][i], u[0][i]);
     }
-    fprintf(stdout, "--- k-Matrix ----------------\n");
     for (int i = 0; i < N; i++) {
         for (int j = 0; j < N; j++) {
             k[i][j] = get_k(i, j, N);
-            fprintf(stdout, "%+14.10lf ", k[i][j]);
         }
-        fprintf(stdout, "\n");
     }
     //comment out for stable samples
-    const double period = getPeriod(m, k, N);
+    const double period = 100; //getPeriod(m, k, N);
     //Computation
+    size_t start = (size_t) time(NULL);
 # pragma omp parallel
     mmid_sub_task(0.01, period, N);
     for (int i = 0; i < N; i++)
         fprintf(stdout, "%+24.10lf %+24.10lf\n", u[1][i], v[1][i]);
+    printf("**time elapsed= %lds\n", time(NULL) - start);
     //Cleanup
     for (long i = 0; i < N; i++) {
         if (i < 2) {

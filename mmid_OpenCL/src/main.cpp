@@ -8,12 +8,13 @@
 #include "cl_kernels/opencl_commons.h"
 #include "cl_kernels/kernels.h"
 
-int N = 0, done = 0;
+int N = 0, done = 0, INTERACT = 0;
 cl_float *m = nullptr, *k = nullptr, *v = nullptr, *u = nullptr;
 
 int main(void) {
     initializeData();
-    const cl_float period = 100, dt = 0.01;
+    const cl_float period = 100, //getPeriod(m, k, N);
+            dt = 0.01;
     const int steps = (const int) roundf(period / dt);
     prepareKernel(N, dt, steps);
     std::vector<cl::Context> contexts = createContexts(CL_DEVICE_TYPE_ALL);
